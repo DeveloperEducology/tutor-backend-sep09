@@ -17,8 +17,6 @@ const create = async (req, res) => {
       userId,
       otherRequirement,
       salary,
-      bookingDate,
-      bookingTime,
       postedDate,
     } = req.body;
 
@@ -36,8 +34,6 @@ const create = async (req, res) => {
       userId,
       otherRequirement,
       salary,
-      bookingDate,
-      bookingTime,
       postedDate,
     });
 

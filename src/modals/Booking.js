@@ -25,15 +25,6 @@ const BookingSchema = new mongoose.Schema({
   salary: { type: String, required: true },
   otherRequirement: { type: String },
 
-  // Separate date and time fields
-  bookingDate: {
-    type: Date,
-    required: false,
-  },
-  bookingTime: {
-    type: String,
-    required: false,
-  },
 
   // New postedDate field
   postedDate: {
