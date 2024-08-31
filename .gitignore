@@ -1,0 +1,35 @@
+# Node modules directory
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables file
+.env
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by testing tools like Jest
+coverage/
+
+# Dependency directories
+jspm_packages/
+
+# Dist directory for compiled output
+dist/
+
+# IDE/editor directories and settings
+.vscode/
+.idea/
+.DS_Store
+
+# System files
+Thumbs.db
