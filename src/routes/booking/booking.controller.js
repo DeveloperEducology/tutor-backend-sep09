@@ -1,5 +1,7 @@
+const Area = require("../../modals/Area");
 const BookingModel = require("../../modals/Booking");
 const ProfileModel = require("../../modals/Profile");
+const School = require("../../modals/School");
 
 const create = async (req, res) => {
   try {
@@ -7,6 +9,7 @@ const create = async (req, res) => {
       tuitionType,
       city,
       location,
+      area,
       category,
       course,
       subjects,
@@ -14,16 +17,20 @@ const create = async (req, res) => {
       tutorGender,
       numStudents,
       days,
+      tuitionDemoDate,
       userId,
       otherRequirement,
       salary,
       postedDate,
+      daysPerWeek,
+      board,
     } = req.body;
 
     const newBooking = new BookingModel({
       tuitionType,
       city,
       location,
+      area,
       category,
       course,
       subjects,
@@ -31,10 +38,13 @@ const create = async (req, res) => {
       tutorGender,
       numStudents,
       days,
+      tuitionDemoDate,
       userId,
       otherRequirement,
       salary,
       postedDate,
+      daysPerWeek,
+      board,
     });
 
     const data = await newBooking.save();
@@ -139,7 +149,8 @@ const getAllBookings = async (req, res) => {
       .populate("category")
       .populate("course")
       .populate("subjects")
-      .populate("days");
+      .populate("days")
+      .sort({ createdAt: -1 }); // Sorting by the latest date
 
     if (!bookings || bookings.length === 0) {
       return res
@@ -156,16 +167,31 @@ const getAllBookings = async (req, res) => {
 
 const getBookings = async (req, res) => {
   try {
-    const userId = req.params.id; // Assuming userId is stored in req.userId from authentication middleware
+    // Get the page number, pageSize, city, and location from the query parameters
+    const { page = 1, pageSize = 10, city, location } = req.query;
+    const skip = (page - 1) * pageSize;
 
-    // Fetch all bookings for the authenticated user
-    const bookings = await BookingModel.find()
+    // Build the filter object based on the city and location
+    const filter = {};
+    if (city) {
+      filter.city = city;
+    }
+
+    console.log(city);
+    // Fetch bookings with pagination, filtering, and sorting by the latest date
+    const bookings = await BookingModel.find(filter)
       .populate("city")
       .populate("location")
       .populate("category")
       .populate("course")
       .populate("subjects")
-      .populate("days");
+      .populate("days")
+      .skip(skip)
+      .sort({ createdAt: -1 }) // Sorting by the latest date
+      .limit(parseInt(pageSize));
+
+    // Get the total count of bookings for pagination purposes
+    const totalBookings = await BookingModel.countDocuments(filter);
 
     if (!bookings || bookings.length === 0) {
       return res
@@ -173,7 +199,15 @@ const getBookings = async (req, res) => {
         .json({ message: "No bookings found for this user" });
     }
 
-    res.status(200).json({ bookings });
+    // Calculate total pages
+    const totalPages = Math.ceil(totalBookings / pageSize);
+
+    res.status(200).json({
+      bookings,
+      currentPage: parseInt(page),
+      totalPages,
+      totalBookings,
+    });
   } catch (error) {
     console.error("Error fetching all bookings:", error);
     res.status(500).json({ message: "Error fetching bookings", error });
@@ -282,6 +316,99 @@ const filterBookings = async (req, res) => {
   }
 };
 
+const searchBooking = async (req, res) => {
+  const { q, part, maxResults } = req.query;
+
+  try {
+    if (!q) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Perform the search in the Booking collection
+    const bookings = await BookingModel.find({
+      $or: [
+        { tuitionType: new RegExp(q, "i") },
+        { studentGender: new RegExp(q, "i") },
+        { tutorGender: new RegExp(q, "i") },
+        // Add other searchable fields here...
+      ],
+    }).limit(parseInt(maxResults) || 10);
+
+    res.json({
+      count: bookings.length,
+      items: bookings,
+      part,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const addArea = async (req, res) => {
+  const { name, pincode, cityId } = req.body;
+
+  if (!name || !cityId) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required or select a city" });
+  }
+
+  try {
+    // Check if the area already exists
+    let area = await Area.findOne({ name: name.toLowerCase() });
+
+    if (area) {
+      return res.status(400).json({ message: "Area already exists" });
+    }
+
+    // Create a new area
+    area = new Area({
+      name: name.toLowerCase(),
+      pincode,
+      cityId,
+    });
+
+    await area.save();
+
+    res.status(201).json({ message: "Area added successfully", area });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+const addSchool = async (req, res) => {
+  const { name, cityId } = req.body;
+
+  if (!name || !cityId) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required or select a city" });
+  }
+
+  try {
+    // Check if the area already exists
+    let area = await School.findOne({ name: name.toLowerCase() });
+
+    if (area) {
+      return res.status(400).json({ message: "school already exists" });
+    }
+
+    // Create a new area
+    school = new School({
+      name: name,
+      cityId,
+    });
+
+    await school.save();
+
+    res.status(201).json({ message: "school added successfully", school });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   create,
   getBooking,
@@ -293,4 +420,7 @@ module.exports = {
   updateBooking,
   deleteBooking,
   filterBookings,
+  searchBooking,
+  addArea,
+  addSchool,
 };

@@ -32,10 +32,12 @@ router.put(
 router.get("/profiles", profile_controller.getAll);
 
 // Get user info by profile profile ID (change route to avoid conflict)
-router.get("/profile/:id", auth, profile_controller.getUserInfoByProfileId);
+router.get("/profile/:id", profile_controller.getUserInfoByProfileId);
 router.get("/profile-detail/:id", profile_controller.getInfoByProfileId1);
 router.get("/profile-categories/:id", profile_controller.profileCategories);
 router.get("/search-profile/:id", profile_controller.searchProfiles);
-
+router.post("/parent-form", profile_controller.submitParentForm);
+router.get("/parent-profile", profile_controller.getParentProfileId);
+router.get("/tutor-profile", profile_controller.getTutorProfileId);
 
 module.exports = router; // Corrected from `module. Exports` to `module.exports`

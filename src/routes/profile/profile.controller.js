@@ -1,6 +1,7 @@
 const ProfileModel = require("../../modals/Profile");
 const BookingModel = require("../../modals/Booking");
 const UserModel = require("../../modals/user");
+const Parent = require("../../modals/parentModel");
 
 const fileUpload = async (req, res) => {
   if (!req?.file) {
@@ -112,7 +113,9 @@ const getInfoByProfileId1 = async (req, res) => {
       .populate("otherInfo.preferredCategories")
       .populate("otherInfo.preferredSubjects")
       .populate("otherInfo.preferredClasses")
-      .populate("otherInfo.preferredLocations")
+      .populate("otherInfo.preferredPincodes")
+      .populate("otherInfo.city")
+      .populate("otherInfo.pincode")
       .exec();
 
     if (!profile) {
@@ -139,6 +142,7 @@ const create = async (req, res) => {
     otherInfo,
     experience,
     education,
+    basicInfo,
     personalInformation,
     emergencyInformation,
     address,
@@ -185,6 +189,7 @@ const create = async (req, res) => {
       otherInfo,
       experience,
       education,
+      basicInfo,
       personalInformation,
       emergencyInformation,
       address,
@@ -350,6 +355,8 @@ const profileCategories = async (req, res) => {
         path: "userId",
         select: "userName email", // Select specific fields from the userId object
       })
+      .populate("otherInfo.preferredCategories")
+      .populate("otherInfo.preferredSubjects")
       .populate("otherInfo.preferredClasses")
       .populate("otherInfo.location"); // Populate location if needed
 
@@ -391,6 +398,100 @@ const searchProfiles = async (req, res) => {
   }
 };
 
+const submitParentForm = async (req, res) => {
+  const {
+    userId,
+    firstName,
+    lastName,
+    whatsAppNumber,
+    email,
+    date,
+    gender,
+    city,
+    pinCode,
+    schoolName,
+    board,
+    medium,
+    guardianName,
+    guardianContact,
+    guardianRelation,
+  } = req.body;
+
+  try {
+    // Check if the user already exists based on userId, email, or WhatsApp number
+    const existingParent = await Parent.findOne({
+      $or: [
+        { userId }, // Check by userId
+        { email }, // Or by email
+        { whatsAppNumber }, // Or by WhatsApp number
+      ],
+    });
+
+    // If the parent already exists, send a conflict response
+    if (existingParent) {
+      return res.status(409).json({
+        message:
+          "User already exists with the provided userId, email, or WhatsApp number.",
+      });
+    }
+
+    // Create a new Parent entry if no user exists
+    const parent = new Parent({
+      userId,
+      firstName,
+      lastName,
+      whatsAppNumber,
+      email,
+      date,
+      gender,
+      city,
+      pinCode,
+      schoolName,
+      board,
+      medium,
+      guardianName,
+      guardianContact,
+      guardianRelation,
+    });
+
+    // Save the new parent entry
+    await parent.save();
+
+    // Send success response
+    res.status(201).json({
+      message: "Parent form submitted successfully",
+      parent,
+    });
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    res.status(500).json({ message: "Server Error. Try again later." });
+  }
+};
+
+const getParentProfileId = async (req, res) => {
+  const userId = req.query.userId;
+  try {
+    const profiles = await Parent.findOne({ userId }); // Updated from profile.find() to ProfileModel.find()
+    res.send({ data: profiles });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while retrieving profiles.",
+    });
+  }
+};
+
+const getTutorProfileId = async (req, res) => {
+  const userId = req.query.userId;
+  try {
+    const profiles = await ProfileModel.findOne({ userId }); // Updated from profile.find() to ProfileModel.find()
+    res.send({ data: profiles });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while retrieving profiles.",
+    });
+  }
+};
+
 module.exports = {
   create,
   update,
@@ -402,4 +503,7 @@ module.exports = {
   getInfoByProfileId1,
   profileCategories,
   searchProfiles,
+  submitParentForm,
+  getParentProfileId,
+  getTutorProfileId,
 };

@@ -6,9 +6,10 @@ const BookingSchema = new mongoose.Schema({
   city: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },
   location: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Location",
+    ref: "Pincode",
     required: true,
   },
+  area: String,
   category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
   course: {
     type: mongoose.Schema.Types.ObjectId,
@@ -21,11 +22,15 @@ const BookingSchema = new mongoose.Schema({
   studentGender: { type: String },
   tutorGender: { type: String },
   numStudents: { type: String },
+  board: { type: String },
   days: [{ type: mongoose.Schema.Types.ObjectId, ref: "Day", required: true }],
   salary: { type: String, required: true },
   otherRequirement: { type: String },
-
-
+  daysPerWeek: { type: String },
+  tuitionDemoDate: {
+    type: Date,
+    required: true,
+  },
   // New postedDate field
   postedDate: {
     type: Date,

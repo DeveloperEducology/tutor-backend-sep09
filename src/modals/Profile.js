@@ -17,8 +17,17 @@ const locationSchema = new Schema({
   name: String,
   cityId: { type: Schema.Types.ObjectId, ref: "City" },
 });
+const pincodeSchema = new Schema({
+  name: String,
+  pincode: Number,
+  cityId: { type: Schema.Types.ObjectId, ref: "City" },
+});
 
 const citySchema = new Schema({
+  name: String,
+});
+
+const boardSchema = new Schema({
   name: String,
 });
 
@@ -57,7 +66,6 @@ const ProfileSchema = new mongoose.Schema({
     time: String,
     salary: Number,
     tutoringStyles: [String],
-    tutoringMethod: [String],
   },
   otherInfo: {
     preferredCategories: [
@@ -67,13 +75,13 @@ const ProfileSchema = new mongoose.Schema({
     preferredSubjects: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
     ],
-    placeOfTutoring: [],
     city: { type: mongoose.Schema.Types.ObjectId, ref: "City" },
-    location: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
-    preferredLocations: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
+    pincode: { type: mongoose.Schema.Types.ObjectId, ref: "Pincode" },
+    preferredPincodes: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Pincode" },
     ],
     preferredDays: [{ type: mongoose.Schema.Types.ObjectId, ref: "Day" }],
+    tutoringMethod: [String],
   },
   experience: {
     totalExperience: String,
@@ -91,7 +99,6 @@ const ProfileSchema = new mongoose.Schema({
     },
   ],
   personalInformation: {
-    email: String,
     additionalNumber: String,
     address: String,
     gender: String,
@@ -111,7 +118,15 @@ const ProfileSchema = new mongoose.Schema({
     relation: String,
     address: String,
   },
+  basicInfo: {
+    firstName: String,
+    lastName: String,
+    gender: String,
+    whatsAppNumber: String,
+    dateOfBirth: String,
+  },
   address: AddressSchema, // Adding address schema
+  profileImage: String,
   media: [mediaSchema],
   rating: {
     rating: Number,
@@ -126,3 +141,5 @@ const Subject = mongoose.model("Subject", subjectSchema);
 const Location = mongoose.model("Location", locationSchema);
 const City = mongoose.model("City", citySchema);
 const Day = mongoose.model("Day", daySchema);
+const Pincode = mongoose.model("Pincode", pincodeSchema);
+const Board = mongoose.model("Board", boardSchema);

@@ -28,8 +28,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
-  city: { type: mongoose.Schema.Types.ObjectId, ref: "City" },
-  location: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
+  
   links: {
     type: Array,
     default: [],
@@ -38,30 +37,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+city: { type: mongoose.Schema.Types.ObjectId, ref: "City" },
+  pincode: { type: mongoose.Schema.Types.ObjectId, ref: "Pincode" },
   fcmToken: {
     type: String,
     default: null,
   },
-  validOTP: {
+ isProfileVerified: {
     type: Boolean,
     default: false,
   },
-  deviceType: {
-    type: String,
-    default: null,
+  isNewUser: {
+    type: Boolean,
+    default: true,
   },
   token: {
     type: String,
     default: null,
   },
-  online: {
-    type: Boolean,
-    default: false,
-  },
-  lastSeen: {
-    type: Date,
-    default: null,
-  },
+
+
   hasProfile: {
     type: Boolean,
     default: false,
@@ -78,14 +73,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  isProfileVerified: {
-    type: Boolean,
-    default: false,
-  },
-  isNewUser: {
-    type: Boolean,
-    default: true,
-  },
+  
   isActive: {
     type: Boolean,
     default: true,
